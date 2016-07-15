@@ -1,8 +1,9 @@
 /**
- * avr-ledcontrol, v1.0.0 for ATtiny45
+ * avr-ledcontrol, v1.0.1
  *
- * This is a simple program to cycle between predefined combinations of LED levels with fading and delays.
- * It supports any number of LED types, but one per pin.
+ * This is a simple program to cycle between predefined combinations of LED levels ("colors")
+ * with crossfading and delays. It supports any number of LED types, but one per pin.
+ * It was written for ATtiny45, but should be easily portable to other devices.
  *
  * 
  * Pin diagram for DIP8 package:
@@ -31,8 +32,8 @@
 #define LED2 2                    // Blue
 #define LED_COUNT 3               // How many LEDs to use
 #define PRESET_COUNT 5            // How many preset LED level combinations to use
-#define CROSSFADE_SLOWNESS 50     // How long to wait between crossfade steps, ms
-#define PRESET_DISPLAY_TIME 3000  // How long to show a particular preset unchanged, ms
+#define CROSSFADE_SLOWNESS 80     // How long to wait between crossfading steps, ms
+#define PRESET_DISPLAY_TIME 9001  // How long to show a particular preset unchanged, ms
 
 int main(void) {
     
@@ -50,12 +51,13 @@ int main(void) {
     };
 
     // Preset LED level combinations ("colors") to cycle through
+    // @todo investigate the weird blue blinking bug at low levels of blue
     uint8_t presets[][LED_COUNT] = {
-        {255, 10, 0},
-        {150, 255, 10},
-        {0, 0, 150},
-        {255, 255, 255},
-        {0, 0, 0}
+        {255, 80, 80},
+        {80, 255, 80},
+        {50, 255, 0},
+        {255, 0, 0},
+        {255, 0, 120}
     };
 
     // LED setup information
@@ -70,9 +72,9 @@ int main(void) {
     
     // Register setup
     // @todo use a function or macro to set and unset registers
-	DDRB |= (1 << leds[0].pin) | (1 << leds[1].pin) | (1 << leds[2].pin);      // Configure LED pins as output
+    DDRB |= (1 << leds[0].pin) | (1 << leds[1].pin) | (1 << leds[2].pin);      // Configure LED pins as output
     PORTB &= ~((1 << leds[0].pin) | (1 << leds[1].pin) | (1 << leds[2].pin));  // Pull all LEDs to low
-    *leds[0].pwm = *leds[1].pwm = *leds[2].pwm = 100;                          // Set initial PWM values
+    *leds[0].pwm = *leds[1].pwm = *leds[2].pwm = 255;                          // Set initial PWM values @todo start with 0
     
     TCCR0A = (1 << COM0A1) | (1 << COM0B1) | (1 << WGM00);  // Phase correct PWM mode for PB0, PB1
     GTCCR  = (1 << PWM1B) | (1 << COM1B0);                  // Phase correct PWM mode for PB4
@@ -84,11 +86,11 @@ int main(void) {
      // Crossfading loop //
     //////////////////////
 
-	// Switch between presets continuously
-	while (true) {
+    // Switch between presets continuously
+    while (true) {
         
         // For every preset in sequence
-		for(uint8_t preset = 0; preset < PRESET_COUNT; preset++) {
+        for(uint8_t preset = 0; preset < PRESET_COUNT; preset++) {
 
             // Assume all LEDs mismatch and mark them as such too
             int ledsMismatch = LED_COUNT;
@@ -118,8 +120,8 @@ int main(void) {
                 _delay_ms(CROSSFADE_SLOWNESS);  // Slow down crossfading
             }
             _delay_ms(PRESET_DISPLAY_TIME);     // Display current preset unchanged for some time
-		}
-	}
-	
-	return 0;
+        }
+    }
+    
+    return 0;
 }
