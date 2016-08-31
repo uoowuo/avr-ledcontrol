@@ -1,5 +1,5 @@
 /**
- * avr-ledcontrol, v1.0.1
+ * avr-ledcontrol, v1.0.2
  *
  * This is a simple program to cycle between predefined combinations of LED levels ("colors")
  * with crossfading and delays. It supports any number of LED types, but one per pin.
@@ -20,7 +20,6 @@
  */
 
 #define F_CPU 1000000             // Clock frequency, Hz
-#include <string.h>
 #include <avr/io.h>
 #include <util/delay.h>
 
@@ -51,7 +50,6 @@ int main(void) {
     };
 
     // Preset LED level combinations ("colors") to cycle through
-    // @todo investigate the weird blue blinking bug at low levels of blue
     uint8_t presets[][LED_COUNT] = {
         {255, 80, 80},
         {80, 255, 80},

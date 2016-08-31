@@ -1,7 +1,7 @@
 This is a simple program to cycle between predefined combinations of LED levels ("colors") with crossfading and delays.
 It supports any number of LED types, but one per pin.
 
-- [Video demo >>](https://raw.githubusercontent.com/uoowuo/avr-ledcontrol/master/demo.mp4)
+- [Video demo >>](https://uoowuo.github.com/avr-ledcontrol/)
 
 It was written for ATtiny45, but should be easily portable to other devices.
 
